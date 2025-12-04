@@ -1,1 +1,4 @@
-s
+beautifulsoup4
+seleniumbase
+firebase-admin
+requests
