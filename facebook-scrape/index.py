@@ -711,17 +711,31 @@ class fbm_scraper():
             else:
                 self.print_and_log("INFO: No proxy configured for browser")
             
-            self.browser = Driver(
-                browser="chrome",
-                user_data_dir=f"./profiles/{profile}",
-                window_size="1440,900",
-                block_images=block_images,
-                headless=headless,
-                agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-                disable_csp=True,
-                disable_js=False,
-                chromium_arg=chrome_args
-            )
+            # Don't use user_data_dir in headless mode (causes issues on Linux VPS)
+            if headless:
+                self.browser = Driver(
+                    browser="chrome",
+                    window_size="1440,900",
+                    block_images=block_images,
+                    headless=True,
+                    headless2=True,
+                    agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                    disable_csp=True,
+                    disable_js=False,
+                    chromium_arg=chrome_args
+                )
+            else:
+                self.browser = Driver(
+                    browser="chrome",
+                    user_data_dir=f"./profiles/{profile}",
+                    window_size="1440,900",
+                    block_images=block_images,
+                    headless=False,
+                    agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                    disable_csp=True,
+                    disable_js=False,
+                    chromium_arg=chrome_args
+                )
             
             # If proxy has authentication, handle it via Chrome extension or other method
             if proxy and '@' in proxy:
@@ -745,19 +759,31 @@ class fbm_scraper():
                 else:
                     chrome_args += f" --proxy-server=http://{proxy}"
             
-            self.browser = Driver(
-                browser="chrome",
-                user_data_dir=f"./profiles/{profile}",
-                window_size="1440,900",
-                block_images=block_images,
-                headless=headless,
-                agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-                chromium_arg=chrome_args
-            )
-            
+            # Don't use user_data_dir in headless mode (causes issues on Linux VPS)
+            if headless:
+                self.browser = Driver(
+                    browser="chrome",
+                    window_size="1440,900",
+                    block_images=block_images,
+                    headless=True,
+                    headless2=True,
+                    agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                    chromium_arg=chrome_args
+                )
+            else:
+                self.browser = Driver(
+                    browser="chrome",
+                    user_data_dir=f"./profiles/{profile}",
+                    window_size="1440,900",
+                    block_images=block_images,
+                    headless=False,
+                    agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                    chromium_arg=chrome_args
+                )
+
             if proxy and '@' in proxy:
                 self.setup_proxy_auth(proxy)
-    
+
     def setup_proxy_auth(self, proxy):
         """Setup proxy authentication by navigating to a test page and handling auth popup"""
         try:
