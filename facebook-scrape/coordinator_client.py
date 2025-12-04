@@ -14,7 +14,7 @@ from typing import Optional, Dict, Any
 # Configuration
 COORDINATOR_BASE_URL = os.environ.get(
     'COORDINATOR_URL',
-    'https://www.autohunterpro.com/api/scraper'
+    'https://autohunter-2iqlxn8os-hbaselabdelfa-7414s-projects.vercel.app/api/scraper'
 )
 API_SECRET = os.environ.get('INTERNAL_API_SECRET', '')
 
