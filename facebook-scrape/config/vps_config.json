@@ -1,0 +1,99 @@
+{
+  "vps_instances": {
+    "vps-1": {
+      "name": "West Coast Primary",
+      "regions": ["west"],
+      "states": ["california", "nevada", "oregon"],
+      "account": {
+        "email": "ACCOUNT_1_EMAIL",
+        "password": "ACCOUNT_1_PASSWORD"
+      },
+      "proxy": "PROXY_1",
+      "threshold": 500,
+      "enabled": true
+    },
+    "vps-2": {
+      "name": "West Coast Secondary",
+      "regions": ["west"],
+      "states": ["arizona", "washington", "colorado", "utah"],
+      "account": {
+        "email": "ACCOUNT_2_EMAIL",
+        "password": "ACCOUNT_2_PASSWORD"
+      },
+      "proxy": "PROXY_2",
+      "threshold": 500,
+      "enabled": true
+    },
+    "vps-3": {
+      "name": "Texas & Southwest",
+      "regions": ["southwest"],
+      "states": ["texas", "new-mexico", "oklahoma"],
+      "account": {
+        "email": "ACCOUNT_3_EMAIL",
+        "password": "ACCOUNT_3_PASSWORD"
+      },
+      "proxy": "PROXY_3",
+      "threshold": 500,
+      "enabled": true
+    },
+    "vps-4": {
+      "name": "Midwest",
+      "regions": ["midwest"],
+      "states": ["illinois", "ohio", "michigan", "indiana", "wisconsin"],
+      "account": {
+        "email": "ACCOUNT_4_EMAIL",
+        "password": "ACCOUNT_4_PASSWORD"
+      },
+      "proxy": "PROXY_4",
+      "threshold": 500,
+      "enabled": true
+    },
+    "vps-5": {
+      "name": "Southeast & Florida",
+      "regions": ["southeast"],
+      "states": ["florida", "georgia", "north-carolina", "south-carolina", "tennessee"],
+      "account": {
+        "email": "ACCOUNT_5_EMAIL",
+        "password": "ACCOUNT_5_PASSWORD"
+      },
+      "proxy": "PROXY_5",
+      "threshold": 500,
+      "enabled": true
+    }
+  },
+  "default_settings": {
+    "threshold": 500,
+    "max_scrolls": 50,
+    "break_interval_profiles": 15,
+    "break_duration_seconds": 120,
+    "scroll_delay_seconds": 2,
+    "scrape_delay_seconds": 0.5
+  },
+  "proxy_pool": {
+    "provider": "decodo",
+    "format": "username:password@host:port",
+    "proxies": [
+      "sp2h3syb9a:ukA+l4AjzBfGx62t2r@isp.decodo.com:10001",
+      "sp2h3syb9a:ukA+l4AjzBfGx62t2r@isp.decodo.com:10002",
+      "sp2h3syb9a:ukA+l4AjzBfGx62t2r@isp.decodo.com:10003",
+      "sp2h3syb9a:ukA+l4AjzBfGx62t2r@isp.decodo.com:10004",
+      "sp2h3syb9a:ukA+l4AjzBfGx62t2r@isp.decodo.com:10005"
+    ]
+  },
+  "instructions": {
+    "setup": [
+      "1. Create 5 Facebook accounts (warm them up for 1-2 weeks)",
+      "2. Replace ACCOUNT_X_EMAIL and ACCOUNT_X_PASSWORD with real credentials",
+      "3. Replace PROXY_X with proxies from the proxy_pool or your own",
+      "4. Run generate_input.py on each VPS with its VPS ID",
+      "5. Each VPS will only scrape its assigned cities"
+    ],
+    "account_creation": [
+      "Use different phone numbers for each account",
+      "Use residential IP during account creation",
+      "Complete profile setup (add profile photo, etc.)",
+      "Browse marketplace manually for 1-2 weeks before scraping",
+      "Never use same account on multiple VPS simultaneously"
+    ]
+  }
+}

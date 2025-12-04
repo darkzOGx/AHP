@@ -1,0 +1,12 @@
+/publications
+/profiles
+/images
+/downloaded_files
+/venv
+__pycache__/
+*.pyc
+*.log
+.env
+serviceAccountKey.json
+profile_name.txt
+input.csv
