@@ -531,13 +531,28 @@ class fbm_scraper():
         try:
             # Check if Firebase app is already initialized
             if not firebase_admin._apps:
-                # Use environment variable for credentials
-                if os.environ.get('GOOGLE_APPLICATION_CREDENTIALS'):
+                # Try environment variables first (like API routes)
+                project_id = os.environ.get('FIREBASE_PROJECT_ID') or os.environ.get('NEXT_PUBLIC_FIREBASE_PROJECT_ID')
+                client_email = os.environ.get('FIREBASE_CLIENT_EMAIL')
+                private_key = os.environ.get('FIREBASE_PRIVATE_KEY')
+
+                if project_id and client_email and private_key:
+                    # Use individual env vars
+                    cred = credentials.Certificate({
+                        "type": "service_account",
+                        "project_id": project_id.strip(),
+                        "client_email": client_email.strip(),
+                        "private_key": private_key.replace('\\n', '\n'),
+                        "token_uri": "https://oauth2.googleapis.com/token",
+                    })
+                elif os.environ.get('GOOGLE_APPLICATION_CREDENTIALS'):
                     cred = credentials.ApplicationDefault()
-                else:
-                    # Use service account key file
+                elif os.path.exists("serviceAccountKey.json"):
+                    # Use service account key file as fallback
                     cred = credentials.Certificate("serviceAccountKey.json")
-            
+                else:
+                    raise Exception("No Firebase credentials found. Set FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, and FIREBASE_PRIVATE_KEY env vars.")
+
                 firebase_admin.initialize_app(cred)
         
             # Initialize Firestore client
