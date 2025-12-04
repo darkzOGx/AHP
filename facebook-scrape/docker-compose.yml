@@ -1,13 +1,24 @@
 version: '3.8'
 
 services:
+  chrome:
+    image: selenium/standalone-chrome:latest
+    container_name: chrome-browser
+    shm_size: '2gb'
+    ports:
+      - "4444:4444"   # Selenium
+      - "7900:7900"   # VNC web viewer
+    environment:
+      - SE_VNC_NO_PASSWORD=1
+
   fb-scraper:
     build: .
     container_name: fb-scraper
     restart: unless-stopped
+    depends_on:
+      - chrome
     environment:
       - INTERNAL_API_SECRET=b137e9844590984a3bbabdbe86e19d3d8378232a09c81523b6e68ff3ae5d7f37
-    shm_size: '2gb'
+      - SELENIUM_REMOTE_URL=http://chrome:4444/wd/hub
     volumes:
       - ./logs:/app/logs
-      - ./debug_screenshots:/app/debug_screenshots

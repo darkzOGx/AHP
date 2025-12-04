@@ -1,10 +1,12 @@
 from bs4 import BeautifulSoup
 from seleniumbase import Driver
+from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+from selenium.webdriver.chrome.options import Options as ChromeOptions
 from selenium.common.exceptions import StaleElementReferenceException, TimeoutException, NoSuchElementException, InvalidSessionIdException, WebDriverException
 import re
 
@@ -722,9 +724,44 @@ class fbm_scraper():
     def init_browser(self, profile, proxy, headless, block_images):
         """Initialize browser with proxy support"""
         try:
-            # Build Chrome arguments
+            # Check if we should use Remote WebDriver (Docker setup)
+            remote_url = os.environ.get('SELENIUM_REMOTE_URL')
+            if remote_url:
+                self.print_and_log(f"INFO: Using Remote WebDriver at {remote_url}")
+                chrome_options = ChromeOptions()
+                chrome_options.add_argument("--no-sandbox")
+                chrome_options.add_argument("--disable-dev-shm-usage")
+                chrome_options.add_argument("--disable-gpu")
+                chrome_options.add_argument("--window-size=1440,900")
+                chrome_options.add_argument("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
+
+                if proxy and proxy.strip():
+                    if '@' in proxy:
+                        auth_part, server_part = proxy.split('@')
+                        host, port = server_part.split(':')
+                        chrome_options.add_argument(f"--proxy-server=http://{host}:{port}")
+                        self.print_and_log(f"INFO: Remote browser will use proxy: {host}:{port}")
+
+                # Wait for Selenium to be ready
+                for attempt in range(30):
+                    try:
+                        self.browser = webdriver.Remote(
+                            command_executor=remote_url,
+                            options=chrome_options
+                        )
+                        self.print_and_log("SUCCESS: Connected to Remote WebDriver")
+                        return
+                    except Exception as e:
+                        if attempt < 29:
+                            self.print_and_log(f"Waiting for Selenium... ({attempt+1}/30)")
+                            time.sleep(2)
+                        else:
+                            raise e
+                return
+
+            # Build Chrome arguments for local browser
             chrome_args = "--disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-renderer-backgrounding --disable-features=TranslateUI --disable-ipc-flooding-protection --no-sandbox --disable-dev-shm-usage --disable-extensions --disable-plugins --aggressive-cache-discard --memory-pressure-off --max_old_space_size=4096 --disable-background-networking --disable-background-sync --disable-add-to-shelf --disable-client-side-phishing-detection --disable-datasaver-prompt --disable-default-apps --disable-desktop-notifications --disable-domain-reliability --disable-features=VizDisplayCompositor --disable-hang-monitor --disable-prompt-on-repost --disable-sync --disable-translate --metrics-recording-only --no-first-run --safebrowsing-disable-auto-update --disable-component-update"
-            
+
             # Add proxy arguments if proxy is provided
             if proxy and proxy.strip():
                 if '@' in proxy:
@@ -732,10 +769,10 @@ class fbm_scraper():
                     auth_part, server_part = proxy.split('@')
                     username, password = auth_part.split(':')
                     host, port = server_part.split(':')
-                    
+
                     # Add proxy server argument
                     chrome_args += f" --proxy-server=http://{host}:{port}"
-                    
+
                     self.print_and_log(f"INFO: Browser will use proxy: {host}:{port} with authentication")
                 else:
                     # Format: host:port (no authentication)
