@@ -1,0 +1,47 @@
+FROM python:3.11-slim
+
+# Install Chrome and dependencies
+RUN apt-get update && apt-get install -y \
+    wget \
+    gnupg \
+    curl \
+    unzip \
+    libgbm1 \
+    libnss3 \
+    libatk1.0-0 \
+    libatk-bridge2.0-0 \
+    libcups2 \
+    libxkbcommon0 \
+    libxcomposite1 \
+    libxdamage1 \
+    libxrandr2 \
+    libpango-1.0-0 \
+    libcairo2 \
+    libasound2 \
+    libxshmfence1 \
+    fonts-liberation \
+    xdg-utils \
+    && wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | apt-key add - \
+    && echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list \
+    && apt-get update \
+    && apt-get install -y google-chrome-stable \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set working directory
+WORKDIR /app
+
+# Copy requirements and install
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy scraper code
+COPY . .
+
+# Create serviceAccountKey.json from base64
+RUN echo "ewogICJ0eXBlIjogInNlcnZpY2VfYWNjb3VudCIsCiAgInByb2plY3RfaWQiOiAiYXV0b2h1bnRlci1wcm8iLAogICJwcml2YXRlX2tleV9pZCI6ICJhN2ZmYzIxNjViYTYzNWMyZjI3MDczMDlkNzgxN2E5YmYxZjM3NDMwIiwKICAicHJpdmF0ZV9rZXkiOiAiLS0tLS1CRUdJTiBQUklWQVRFIEtFWS0tLS0tXG5NSUlFdlFJQkFEQU5CZ2txaGtpRzl3MEJBUUVGQUFTQ0JLY3dnZ1NqQWdFQUFvSUJBUUNoWlpSWXBiNFR2RnN3XG5CbzF5ZmpHa2V3OXdyWVlxbzNOU3FoTUgxUGpkejZiSnZxZWk3clQvRkd0QXV6c3FhdTdjbGIxSlhBQitMZGppXG5zTHREcXh3NHNlREQyZC9IbGJVMktRMVZ1UUgwUzJGR3ZGdXZEOUtPRkxIaTJRL2ROWWRpeXZoZ3BROFMxcWZCXG51cU5xZGJicE1KT0lic1FYcDJwSHd5czZpbkhzMFhZMEsybTFTOXp6TEZ0SEpuNHpCUjRNbjZ4OVprNU9UMWgrXG5qQVIzUk9jV2pyU2k4Sm5mQ2grbGxyYjhhSnVkcUhDTGtXaXhIM25MbWYzWE9MYkFMUWFmbno4d1hsM3RvblJwXG5xOEF1ZHUwNVJPK0JTa3pIS2lwTldOVXVOaXl0eWsvUkowaE41REw2VXRMYk5BVGEydkRVVmdhSEZEdWtkZERFXG5tQnR5VjRtL0FnTUJBQUVDZ2dFQUFaVnBoWnp1dUxJVFl6UXhzemt0Tmt6SlE1d05tdWk0NCtmc2lEYUh0Q2w0XG51Um0ycFVSMnJyNUltblpHaEdhSWlyR3FHOEZ4ZzVLTkNZZUJhS3NSM3pXbktmOTN5YlVxMlUxZGZCTllYN3NBXG5FRXZKWnk4UUxCMkEzbkk4ZDFYclNzWFFURFN3b2pxK01XM1VyQnFVejBTZFhSYjFKYm1hYkJhZU9BWnhhQkFQXG5xSHV4bVBuKy9XNDFSTktYdDBRQjBRaW9rV1FHRUxsYzJrRVViekREYXB0N21CbGpYU2dBOXRQcWt1MnV3SzQ0XG44SmRNYmgxcHVwN2xUNlovL3BMbGtPeWFiNkd6MFJXb0Z0NG1tMnp5eXU0U3VkRUNSUHJIZmF4ZHI5aXgrUGV4XG4ySXgxaHNZVGcrOHNHaG5lTWY4S09ZOGZQMGJ4TGhZQW94WEc5eFNlMFFLQmdRRE1rTmRYNkN2T3lFSVpFOEpqXG4rendER1o2dVpTTGRucmlwb2JzeDdxdlZhdGE5bk1kcXJwWlA0SG42SERvSHJ1d1hCUkUzeU1LeFkwRi9XUGlqXG5rWE1KOExaY1Nndkd4Q0VvcnppYkc1SFNuVk80c1FaOFNsYmdlV2FMQTJrN3V3bUQ3UGppaDBoR0htNi9EOGpaXG5kMFBQSHd1YkFvN2wwYWxlZ3hOOFpyTjlVUUtCZ1FESitodE82SGZrMFJDWWlDY2lOdFdSaGJhajRqSXZRVFlHXG5aZHJyeFluOHRpR2xmZHoyaCtqMXJiZFpuSm9hYVhMZjVGQWxNcnljS1RLQXRXVlpvNHV2ZXAvNnE0YVZ5WWVOXG5TMTk0ay9JTE1yTElmdGsra1JDVjF1dzl2ZFdwTG14dDduUmpqMWZOTHdxR0VyQzlzMHNqcm0zY2t1TTh4cmQxXG5Fdmw4MSt1U0R3S0JnRzZEK2JNR1BWU1RvQklJT01ibkhmN1d3b0daSmdMeEV2YWg1NDRNVVUwVlVUcFREdkUxXG5yUU11VlBlb2REbGVhVEh1ak9URVUxcWVNdTVuMUx3Wmdqcm1qcjdCU2lkeUlpL21xZ0F5SHMvWUt6am1lb2gvXG5hUHdRMmpOVC9uQkVsZGx1RnUvYkFsTFBjaWxLajhuY3d3ZU0wQ3BJY1liN2hETUpRV2U5M0U1aEFvR0FMSkJlXG5qaDZFdFp2YlNZeGc5ZytiTjZ5RkM4dlF2dFJva3lqT0VNOVpEc1V3ejA3aC9oTW10MjVJMGlEWGI1UnNvREhEXG43VEV3cEZRQ3JKdFpiVm5FYkVkbUhPelRtU0VLSTRiSjNkVG14c204NExmOFB1M0s5d1NndzA2cllkUzRYOWtKXG5IUjUzaFBJb0pFVGpjamVwRUlwZit4Yjl4RjhrQTFUWWIwOUV6c2tDZ1lFQWhzTzh1TFdUMkdvZy9MRzlXZ0NQXG5HVXVBMGRlMzBJbkpha3hzRk5kRDljeHQyRG91aGxvS0NqVmROcXBVZEdwbmFNcm9SMkh4UjRXQ21MazRNY0RFXG5tQTBCK25zQkJMMG5MVW9zTm0rWDZrRlFaWm9kTmhBZ1BoSWFQTGFCamdPRXY5UkR1eDhTUmVRUDI1VzMrYkI5XG5ORXFJVHNTRERLdnl0RS9LdURhVldUdz1cbi0tLS0tRU5EIFBSSVZBVEUgS0VZLS0tLS1cbiIsCiAgImNsaWVudF9lbWFpbCI6ICJmaXJlYmFzZS1hZG1pbnNkay1mYnN2Y0BhdXRvaHVudGVyLXByby5pYW0uZ3NlcnZpY2VhY2NvdW50LmNvbSIsCiAgImNsaWVudF9pZCI6ICIxMTM0MTU5NjM1NTcwNzczOTE4ODMiLAogICJhdXRoX3VyaSI6ICJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20vby9vYXV0aDIvYXV0aCIsCiAgInRva2VuX3VyaSI6ICJodHRwczovL29hdXRoMi5nb29nbGVhcGlzLmNvbS90b2tlbiIsCiAgImF1dGhfcHJvdmlkZXJfeDUwOV9jZXJ0X3VybCI6ICJodHRwczovL3d3dy5nb29nbGVhcGlzLmNvbS9vYXV0aDIvdjEvY2VydHMiLAogICJjbGllbnRfeDUwOV9jZXJ0X3VybCI6ICJodHRwczovL3d3dy5nb29nbGVhcGlzLmNvbS9yb2JvdC92MS9tZXRhZGF0YS94NTA5L2ZpcmViYXNlLWFkbWluc2RrLWZic3ZjJTQwYXV0b2h1bnRlci1wcm8uaWFtLmdzZXJ2aWNlYWNjb3VudC5jb20iLAogICJ1bml2ZXJzZV9kb21haW4iOiAiZ29vZ2xlYXBpcy5jb20iCn0K" | base64 -d > serviceAccountKey.json
+
+# Environment variables
+ENV INTERNAL_API_SECRET=b137e9844590984a3bbabdbe86e19d3d8378232a09c81523b6e68ff3ae5d7f37
+
+# Run scraper
+CMD ["python", "run_with_coordinator.py", "--vps-id", "vps-1", "--headless", "--proxy", "sp2h3syb9a:ukA+l4AjzBfGx62t2r@isp.decodo.com:10001"]
