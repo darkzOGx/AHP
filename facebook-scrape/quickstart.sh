@@ -16,7 +16,7 @@ pip install -r requirements.txt
 cat > .env << 'EOF'
 VPS_ID=vps-1
 INTERNAL_API_SECRET=b137e9844590984a3bbabdbe86e19d3d8378232a09c81523b6e68ff3ae5d7f37
-COORDINATOR_URL=https://autohunter-2iqlxn8os-hbaselabdelfa-7414s-projects.vercel.app/api/scraper
+COORDINATOR_URL=https://autohunter-pro.vercel.app/api/scraper
 PROXY=sp2h3syb9a:ukA+l4AjzBfGx62t2r@isp.decodo.com:10001
 EOF
 
