@@ -571,7 +571,19 @@ class fbm_scraper():
             # Navigate directly to marketplace URL
             marketplace_url = f"https://www.facebook.com/marketplace/{city_code}/vehicles?sortBy=creation_time_descend&exact=true"
             self.browser.get(marketplace_url)
-            time.sleep(3)
+            time.sleep(5)  # Wait longer for page to load
+
+            # Try to close any cookie consent dialogs
+            try:
+                cookie_buttons = self.browser.find_elements(By.XPATH, "//button[contains(text(), 'Accept') or contains(text(), 'Allow') or contains(text(), 'OK')]")
+                for btn in cookie_buttons[:2]:  # Click first 2 matching buttons
+                    try:
+                        btn.click()
+                        time.sleep(1)
+                    except:
+                        pass
+            except:
+                pass
 
             # Check if we successfully loaded marketplace
             current_url = self.browser.current_url
@@ -623,13 +635,34 @@ class fbm_scraper():
             scroll_count = 0
             max_scrolls = 50  # Increased from 10 to get 5x more listings
 
+            # Debug: Check page state before scrolling
+            page_source = self.browser.page_source
+            if "login" in page_source.lower() or "log in" in page_source.lower():
+                self.print_and_log("WARNING: Facebook may be showing login page")
+            if len(page_source) < 5000:
+                self.print_and_log(f"WARNING: Page source very small ({len(page_source)} chars) - page may not have loaded")
+
+            # Try to save screenshot for debugging
+            try:
+                self.browser.save_screenshot(f"debug_screenshot_{self.city_code}.png")
+                self.print_and_log(f"DEBUG: Screenshot saved to debug_screenshot_{self.city_code}.png")
+            except:
+                pass
+
             while scroll_count < max_scrolls and len(self.links) < self.threshold:
                 # Scroll down
                 self.browser.execute_script("window.scrollTo(0, document.body.scrollHeight);")
                 time.sleep(2)
-                
-                # Find vehicle links
+
+                # Find vehicle links - try multiple selectors
                 vehicle_links = self.browser.find_elements(By.XPATH, "//a[contains(@href, '/marketplace/item/')]")
+
+                # If no links found with first selector, try alternatives
+                if len(vehicle_links) == 0 and scroll_count == 0:
+                    self.print_and_log("DEBUG: No links with primary selector, trying alternatives...")
+                    vehicle_links = self.browser.find_elements(By.CSS_SELECTOR, "a[href*='/marketplace/item/']")
+                    if len(vehicle_links) == 0:
+                        vehicle_links = self.browser.find_elements(By.PARTIAL_LINK_TEXT, "marketplace")
                 
                 for link in vehicle_links:
                     try:
