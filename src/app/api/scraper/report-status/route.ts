@@ -29,8 +29,9 @@ interface StatusReport {
 export async function POST(request: NextRequest) {
   try {
     // Verify internal API secret
-    const authHeader = request.headers.get('x-api-secret');
-    if (authHeader !== process.env.INTERNAL_API_SECRET) {
+    const authHeader = request.headers.get('x-api-secret')?.trim();
+    const envSecret = process.env.INTERNAL_API_SECRET?.trim();
+    if (!authHeader || !envSecret || authHeader !== envSecret) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
