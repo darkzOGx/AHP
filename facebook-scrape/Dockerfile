@@ -44,5 +44,5 @@ RUN echo "ewogICJ0eXBlIjogInNlcnZpY2VfYWNjb3VudCIsCiAgInByb2plY3RfaWQiOiAiYXV0b2
 # Environment variables
 ENV INTERNAL_API_SECRET=b137e9844590984a3bbabdbe86e19d3d8378232a09c81523b6e68ff3ae5d7f37
 
-# Run scraper
-CMD ["python", "run_with_coordinator.py", "--vps-id", "vps-1", "--headless", "--proxy", "sp2h3syb9a:ukA+l4AjzBfGx62t2r@isp.decodo.com:10001"]
+# Run scraper (no proxy)
+CMD ["python", "run_with_coordinator.py", "--vps-id", "vps-1", "--headless"]
