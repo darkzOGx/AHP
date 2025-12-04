@@ -148,8 +148,18 @@ interface JobAssignment {
 export async function POST(request: NextRequest) {
   try {
     // Verify internal API secret
-    const authHeader = request.headers.get('x-api-secret');
-    if (authHeader !== process.env.INTERNAL_API_SECRET) {
+    const authHeader = request.headers.get('x-api-secret')?.trim();
+    const envSecret = process.env.INTERNAL_API_SECRET?.trim();
+
+    console.log('Auth check:', {
+      hasAuthHeader: !!authHeader,
+      hasEnvSecret: !!envSecret,
+      authHeaderLength: authHeader?.length,
+      envSecretLength: envSecret?.length,
+      match: authHeader === envSecret
+    });
+
+    if (!authHeader || !envSecret || authHeader !== envSecret) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
